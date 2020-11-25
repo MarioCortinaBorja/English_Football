@@ -56,23 +56,28 @@ england %>%
                      "Portsmouth",
                      "Southampton",
                      "Manchester United",
-                     "Wolverhampton Wanderers"))
+                     "Wolverhampton Wanderers", "Arsenal"))
 #
 # Specify the club of interest for which graphs are required
 #
 
 football_plots<- function(club_of_interest = 'Plymouth Argyle',
-                          club_colour = '#005045', save_plots = FALSE)
+                          club_colour = '#005045', save_plots = FALSE,
+                          season_limits = c(1921, 2019))
 {
+  # season_limits can be changed 
   #club_of_interest <- "Plymouth Argyle"
   # Specify its colour for curve in graph
   ## club_colour <- "#005045" ### this is the PAFC shade of green according to
   # https://encycolorpedia.com/004237#:~:text=In%20the%20RGB%20color%20model,logo%20and%20Leicester%20Tigers%20logo.
   #
   # Get the data for the club of interest
+  season_breaks<- c(1921, 1925, 1938, 1946, 1958, 1981, 1986, 1992, 2019)
+  if(season_limits[1]< 1921) season_breaks<- c(season_limits[1], season_breaks)
   #
   my_club <- england %>%
-    filter(home ==  club_of_interest | visitor == club_of_interest)
+    filter(home ==  club_of_interest | visitor == club_of_interest, 
+           Season <= season_limits[2] & Season >= season_limits[1])
   #
   # Low scoring matches, high scoring matches, identify draws
   #
@@ -134,6 +139,7 @@ football_plots<- function(club_of_interest = 'Plymouth Argyle',
   my_club_goals <- my_club_summary_long %>% 
     filter(Type_f == "Goals per match")
   
+  
   my_club_goals$tier_colour<- col.tier[my_club_goals$tier] ### 
   labs.legend<- paste('Tier ', unique.tier, sep='')### 
   cols.legend<- col.tier[unique.tier] ### 
@@ -156,8 +162,8 @@ football_plots<- function(club_of_interest = 'Plymouth Argyle',
                 colour = 	club_colour, 
                 span = 0.5,
                 size = 3) +
-    scale_x_continuous(limits = c(1921, 2019),
-                       breaks = c(1921, 1925, 1938, 1946, 1958, 1981, 1986, 1992, 2019),
+    scale_x_continuous(limits = season_limits,
+                       breaks = season_breaks,
                        minor_breaks = NULL) + # seq(from = 1920, to = 2020, by = 10)
     scale_y_continuous(limits = c(1.5,4.5),
                        breaks = 2:4,
@@ -221,8 +227,8 @@ football_plots<- function(club_of_interest = 'Plymouth Argyle',
                 span = 0.5,
                 size = 3,
                 colour = club_colour) +
-    scale_x_continuous(limits = c(1920, 2020),
-                       breaks = c(1921, 1925, 1938, 1946, 1958, 1981, 1986, 1992, 2019),
+    scale_x_continuous(limits = season_limits,
+                       breaks = season_breaks,
                        minor_breaks = NULL) + # seq(from = 1920, to = 2020, by = 10)
     scale_y_continuous(limits = c(0, 0.5),
                        breaks = seq(from = 0, to = 0.5, by = 0.1),
@@ -299,8 +305,8 @@ football_plots<- function(club_of_interest = 'Plymouth Argyle',
     geom_smooth(se = FALSE,
                 span = 0.5,
                 size = 2) +
-    scale_x_continuous(limits = c(1920, 2020),
-                       breaks = c(1921, 1925, 1938, 1946, 1958, 1981, 1986, 1992, 2019),
+    scale_x_continuous(limits = season_limits,
+                       breaks = season_breaks,
                        minor_breaks = NULL) + # seq(from = 1920, to = 2020, by = 10) 
     scale_y_continuous(limits = c(0, 0.6),
                        breaks = seq(from = 0, to = 0.6, by = 0.1),
@@ -359,8 +365,8 @@ football_plots<- function(club_of_interest = 'Plymouth Argyle',
     geom_smooth(se = FALSE,
                 span = 0.5,
                 size = 2) +
-    scale_x_continuous(limits = c(1920, 2020),
-                       breaks = c(1921, 1925, 1938, 1946, 1958, 1981, 1986, 1992, 2019),
+    scale_x_continuous(limits = season_limits,,
+                       breaks = season_breaks,
                        minor_breaks = NULL) + # seq(from = 1920, to = 2020, by = 10) 
     scale_y_continuous(limits = c(0, 0.6),
                        breaks = seq(from = 0, to = 0.6, by = 0.1),
@@ -418,7 +424,8 @@ football_plots<- function(club_of_interest = 'Plymouth Argyle',
 }
 
 
-testWW<-football_plots("Wolverhampton Wanderers", 'orange', save_plots = TRUE)
+testWW<-football_plots("Wolverhampton Wanderers", 'orange', 
+                       season_limits=c(1888,2019), save_plots = TRUE)
 
 testPAFC<-football_plots("Plymouth Argyle", '#005045', save_plots = TRUE)
 
